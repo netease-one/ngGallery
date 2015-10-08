@@ -28,6 +28,7 @@ angular.module('jkuri.gallery', [])
 	'<div class="{{ baseClass }}">' +
 	'  <div ng-repeat="i in images">' +
 	'    <img ng-src="{{ i.thumb }}" class="{{ thumbClass }}" ng-click="openGallery($index)" alt="Image {{ $index + 1 }}" />' +
+	'	<input type="button" ng-click="remove(i.thumb)" ng-show="removeAction" value="删除">' +
 	'  </div>' +
 	'</div>' +
 	'<div class="ng-overlay" ng-show="opened">' +
@@ -53,7 +54,9 @@ angular.module('jkuri.gallery', [])
 		restrict: 'EA',
 		scope: {
 			images: '=',
-			thumbsNum: '@'
+			thumbsNum: '@',
+			field:'@',
+			removeAction:'@'
 		},
 		templateUrl: function(element, attrs) {
         		return attrs.templateUrl || defaults.templateUrl;
@@ -148,7 +151,17 @@ angular.module('jkuri.gallery', [])
 			scope.closeGallery = function () {
 				scope.opened = false;
 			};
-
+			scope.remove = function (thumb) {
+				scope.$emit('image:remove', {
+					field : scope.field,
+					thumb : thumb
+				});
+				_.forEach(scope.images, function (image, i) {
+					if(image && image.thumb && image.thumb == thumb){
+						return scope.images.splice(i, 1);
+					}
+				});
+			};
 			$body.bind('keydown', function(event) {
 				if (!scope.opened) {
 					return;
